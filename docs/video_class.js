@@ -60,9 +60,9 @@ navigator.mediaDevices = navigator.mediaDevices || ((navigator.mozGetUserMedia |
             } : null);
 
             if (!navigator.mediaDevices){
-                console.log("camera OK!");
-            }else{
                 alert("未対応ブラウザです.");
+            }else{
+                console.log("camera OK!");
             }
             var tmp_this = this;
 
