@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Video class
  * 動画処理
  * 2014/04/01
@@ -39,20 +39,34 @@ function Video_CLASS( _name, _videoId, _width, _height, _camera, _audio){
 
         init: function(_camera, _audio){
             window.URL = window.URL || window.webkitURL;
+	 /*
             navigator.getMedia = (navigator.getUserMedia ||
                         navigator.webkitGetUserMedia ||
-                        navigator.mozGetUserMedia ||
+                        navigator.mediaDevices.getUserMedia ||
                         navigator.msGetUserMedia);
 
             if(navigator.getMedia){
                 console.log("camera OK!");
             }else{
                 alert("未対応ブラウザです.");
-            }
+            }*/
 
+navigator.mediaDevices = navigator.mediaDevices || ((navigator.mozGetUserMedia || navigator.webkitGetUserMedia) ? {
+                getUserMedia: function(c) {
+                return new Promise(function(y, n) {
+                 (navigator.mozGetUserMedia || navigator.webkitGetUserMedia).call(navigator, c, y, n);
+                });
+              }
+            } : null);
+
+            if (!navigator.mediaDevices){
+                console.log("camera OK!");
+            }else{
+                alert("未対応ブラウザです.");
+            }
             var tmp_this = this;
 
-            navigator.getMedia({video: _camera, audio: _audio},
+/*            navigator.getMedia({video: _camera, audio: _audio},
                     function(stream){
                         console.log("Camera : " + tmp_this);
                         //tmp_this.video.width = tmp_this.width;
@@ -68,6 +82,23 @@ function Video_CLASS( _name, _videoId, _width, _height, _camera, _audio){
                         console.log('error! ' + e);
                     }
             );
+*/
+navigator.mediaDevices.getUserMedia({video: _camera, audio: _audio})
+.then(function(stream) {
+                        console.log("Camera : " + tmp_this);
+                        //tmp_this.video.width = tmp_this.width;
+                        //tmp_this.video.height = tmp_this.height;
+                        tmp_this.video.src = window.URL.createObjectURL(stream);
+                        //tmp_this.localMediaStream = stream;
+                        tmp_this.localMediaStream = stream;
+                        tmp_this.localMediaStreamTrack = stream.getTracks()[0];
+                        tmp_this.video.autoplay = true;
+                    }).catch(function(e) {
+                        alert("カメラが開けません");
+                        console.log('error! ' + e);
+                   });
+
+
         },
 
         stopVideo: function(){
